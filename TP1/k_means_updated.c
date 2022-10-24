@@ -22,7 +22,7 @@ Ponto Ponto_ini() {
     return p;
 }
 
-double distance(Ponto p1, Ponto p2) {
+float distance(Ponto p1, Ponto p2) {
     return (p2.x - p1.x) * (p2.x - p1.x) + (p2.y - p1.y) * (p2.y - p1.y);
 }
 
@@ -90,8 +90,8 @@ void colocar(Ponto v[], Ponto cluster[]) {
 }
 
 float mean_x(Ponto v[], int j){
-    double sum = 0;
-    double counter = 0;
+    float sum = 0;
+    float counter = 0;
 
     for(int i = 0 ; i < N ; i+=5){
         if(v[i].clusters == j){
@@ -119,8 +119,8 @@ float mean_x(Ponto v[], int j){
 }
 
 float mean_y(Ponto v[], int j){
-    double sum = 0;
-    double counter = 0;
+    float sum = 0;
+    float counter = 0;
 
     for(int i = 0 ; i < N ; i+=5){
         if(v[i].clusters == j){
@@ -147,10 +147,20 @@ float mean_y(Ponto v[], int j){
     return sum/counter;
 }
 
+int comparer(float f1, float f2) {
+    float precision = 0.0000001;
+    if (((f1 - precision) < f2) &&
+        ((f1 + precision) > f2)) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
 int check(Ponto cluster[],Ponto cluster_updated[]){
 
+    
     for(int i = 0 ; i < K ; i++){
-        if((cluster[i].x != cluster_updated[i].x)||(cluster[i].y != cluster_updated[i].y)){
+        if((comparer(cluster[i].x,cluster_updated[i].x) != 1)||(comparer(cluster[i].y,cluster_updated[i].y) != 1)){
             return 1;
         }
     }
@@ -195,7 +205,7 @@ int main(){
 
     printf("\nResult:\n");
     for (int i = 0; i < K; i++) {
-        printf("x: %f, y: %f\n", cluster[i].x, cluster[i].y);
+        printf("x: %.3f, y: %.3f\n", cluster[i].x, cluster[i].y);
     }
     printf("counter: %d\n", counter);
     
