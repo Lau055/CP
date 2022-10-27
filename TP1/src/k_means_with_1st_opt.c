@@ -1,3 +1,4 @@
+#include<omp.h>
 #include<stdio.h>
 #include<stdlib.h>
 
@@ -57,6 +58,8 @@ void colocar(Ponto v[], Ponto cluster[]) {
     float distancia_min4 = 10000000;
     float distancia_min5 = 10000000;
 
+    #pragma omp parallel num_threads(4)
+    #pragma omp for
     for (int i = 0; i < N; i+=5) {
         for (int j = 0; j < K; j++) {
             distancia_min1 = distance(v[i], cluster[j]);
@@ -93,7 +96,7 @@ float mean_x(Ponto v[], int j){
     float sum = 0;
     float counter = 0;
 
-    for(int i = 0 ; i < N ;i+=10){
+    for(int i = 0 ; i < N ;i+=5){
         if(v[i].clusters == j){
             sum += v[i].x;
             counter++;
@@ -114,26 +117,6 @@ float mean_x(Ponto v[], int j){
             sum += v[i+4].x;
             counter++;
         }
-        if(v[i+5].clusters == j){
-            sum += v[i+5].x;
-            counter++;
-        }
-        if(v[i+6].clusters == j){
-            sum += v[i+6].x;
-            counter++;
-        }
-        if(v[i+7].clusters == j){
-            sum += v[i+7].x;
-            counter++;
-        }
-        if(v[i+8].clusters == j){
-            sum += v[i+8].x;
-            counter++;
-        }
-        if(v[i+9].clusters == j){
-            sum += v[i+9].x;
-            counter++;
-        }
     }
     return sum/counter;
 }
@@ -142,7 +125,7 @@ float mean_y(Ponto v[], int j){
     float sum = 0;
     float counter = 0;
 
-    for(int i = 0 ; i < N ; i+=10){
+    for(int i = 0 ; i < N ; i+=5){
         if(v[i].clusters == j){
             sum += v[i].y;
             counter++;
@@ -161,26 +144,6 @@ float mean_y(Ponto v[], int j){
         }
         if(v[i+4].clusters == j){
             sum += v[i+4].y;
-            counter++;
-        }
-        if(v[i+5].clusters == j){
-            sum += v[i+5].y;
-            counter++;
-        }
-        if(v[i+6].clusters == j){
-            sum += v[i+6].y;
-            counter++;
-        }
-        if(v[i+7].clusters == j){
-            sum += v[i+7].y;
-            counter++;
-        }
-        if(v[i+8].clusters == j){
-            sum += v[i+8].y;
-            counter++;
-        }
-        if(v[i+9].clusters == j){
-            sum += v[i+9].y;
             counter++;
         }
     }
@@ -216,25 +179,10 @@ int main(){
 
     inicializa(v, cluster);
     colocar(v, cluster);
-    
-    if(changed_location != 0){
-        do{
-            for(int i = 0 ; i < K ; i++){
-                cluster_updated[i].x = mean_x(v,i);
-                cluster_updated[i].y = mean_y(v,i); 
-            }
-            for(int i = 0 ; i < K ; i++){
-                cluster[i].x = cluster_updated[i].x;
-                cluster[i].y = cluster_updated[i].y; 
-            }
-            colocar(v, cluster);
-            counter++;
 
-        } while (changed_location != 1);
-    }
-
-    while (changed_location != 0) {
-        
+    do {
+        #pragma omp parallel num_threads(8)
+        #pragma omp for
         for(int i = 0 ; i < K ; i++){
             cluster_updated[i].x = mean_x(v,i);
             cluster_updated[i].y = mean_y(v,i); 
@@ -248,7 +196,7 @@ int main(){
             colocar(v, cluster);
             counter++;
         }
-    }
+    }while (changed_location != 0);
 
     printf("\nResult:\n");
     for (int i = 0; i < K; i++) {
