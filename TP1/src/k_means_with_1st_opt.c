@@ -8,7 +8,6 @@
 typedef struct Ponto {
     float x, y;
     int clusters;
-    float distancia_minima;
 } Ponto;
 
 Ponto Ponto_ini() {
@@ -17,7 +16,6 @@ Ponto Ponto_ini() {
     p.x = 0;
     p.y = 0;
     p.clusters = -1;
-    p.distancia_minima = 1000000000;
 
     return p;
 }
@@ -31,6 +29,7 @@ void inicializa(Ponto v[], Ponto cluster[K]) {
     for (int i = 0; i < N; i++) {
         v[i].x = (float) rand() / RAND_MAX;
         v[i].y = (float) rand() / RAND_MAX;
+
     }
 
     for (int i = 0; i < K; i++) {
@@ -42,96 +41,32 @@ void inicializa(Ponto v[], Ponto cluster[K]) {
 
 void colocar(Ponto v[], Ponto cluster[]) {
 
-    for(int i = 0 ; i < N ; i+=5){
-        v[i].distancia_minima = 1000000000;
-        v[i+1].distancia_minima = 1000000000;
-        v[i+2].distancia_minima = 1000000000;
-        v[i+3].distancia_minima = 1000000000;
-        v[i+4].distancia_minima = 1000000000;
-   }
+    float distancia_min1=0;
+    float distancia_min2=0;
+    float distancia_min3=0;
+    float distancia_min4=0;
+    int aux = 0;
 
+    for(int i = 0 ;  i < N/2 ;i++){
+        distancia_min1 = distance(v[i],cluster[0]);
+        distancia_min2 = distance(v[i],cluster[1]);
+        distancia_min3 = distance(v[i],cluster[2]);
+        distancia_min4 = distance(v[i],cluster[3]);
 
-    float distancia_min1 = 10000000;
-    float distancia_min2 = 10000000;
-    float distancia_min3 = 10000000;
-    float distancia_min4 = 10000000;
-    float distancia_min5 = 10000000;
+        v[i].clusters = (distancia_min1 <= distancia_min2 && distancia_min1 <= distancia_min3 && distancia_min1 <= distancia_min4)? 0 : 
+        (distancia_min2 <= distancia_min1 && distancia_min2 <= distancia_min3 && distancia_min2 <= distancia_min4)? 1 :
+        (distancia_min3 <= distancia_min2 && distancia_min3 <= distancia_min1 && distancia_min3 <= distancia_min4)? 2 : 3;
 
-    for (int i = 0; i < N; i+=5) {
-        for (int j = 0; j < K; j++) {
-            distancia_min1 = distance(v[i], cluster[j]);
-            distancia_min2 = distance(v[i+1], cluster[j]);
-            distancia_min3 = distance(v[i+2], cluster[j]);
-            distancia_min4 = distance(v[i+3], cluster[j]);
-            distancia_min5 = distance(v[i+4], cluster[j]);
-            if (v[i].distancia_minima > distancia_min1) {
-                v[i].distancia_minima = distancia_min1;
-                v[i].clusters = j;
-            }
-            if (v[i+1].distancia_minima > distancia_min2) {
-                v[i+1].distancia_minima = distancia_min2;
-                v[i+1].clusters = j;
-            }
-            if (v[i+2].distancia_minima > distancia_min3) {
-                v[i+2].distancia_minima = distancia_min3;
-                v[i+2].clusters = j;
-            }
-            if (v[i+3].distancia_minima > distancia_min4) {
-                v[i+3].distancia_minima = distancia_min4;
-                v[i+3].clusters = j;
-            }
-            if (v[i+4].distancia_minima > distancia_min5) {
-                v[i+4].distancia_minima = distancia_min5;
-                v[i+4].clusters = j;
-            }
-
-        }
-    }  
+    }
 }
 
 float mean_x(Ponto v[], int j){
     float sum = 0;
     float counter = 0;
 
-    for(int i = 0 ; i < N ;i+=10){
+    for(int i = 0 ; i < N ;i++){
         if(v[i].clusters == j){
             sum += v[i].x;
-            counter++;
-        }
-        if(v[i+1].clusters == j){
-            sum += v[i+1].x;
-            counter++;
-        }
-        if(v[i+2].clusters == j){
-            sum += v[i+2].x;
-            counter++;
-        }
-        if(v[i+3].clusters == j){
-            sum += v[i+3].x;
-            counter++;
-        }
-        if(v[i+4].clusters == j){
-            sum += v[i+4].x;
-            counter++;
-        }
-        if(v[i+5].clusters == j){
-            sum += v[i+5].x;
-            counter++;
-        }
-        if(v[i+6].clusters == j){
-            sum += v[i+6].x;
-            counter++;
-        }
-        if(v[i+7].clusters == j){
-            sum += v[i+7].x;
-            counter++;
-        }
-        if(v[i+8].clusters == j){
-            sum += v[i+8].x;
-            counter++;
-        }
-        if(v[i+9].clusters == j){
-            sum += v[i+9].x;
             counter++;
         }
     }
@@ -142,45 +77,9 @@ float mean_y(Ponto v[], int j){
     float sum = 0;
     float counter = 0;
 
-    for(int i = 0 ; i < N ; i+=10){
+    for(int i = 0 ; i < N ; i++){
         if(v[i].clusters == j){
             sum += v[i].y;
-            counter++;
-        }
-        if(v[i+1].clusters == j){
-            sum += v[i+1].y;
-            counter++;
-        }
-        if(v[i+2].clusters == j){
-            sum += v[i+2].y;
-            counter++;
-        }
-        if(v[i+3].clusters == j){
-            sum += v[i+3].y;
-            counter++;
-        }
-        if(v[i+4].clusters == j){
-            sum += v[i+4].y;
-            counter++;
-        }
-        if(v[i+5].clusters == j){
-            sum += v[i+5].y;
-            counter++;
-        }
-        if(v[i+6].clusters == j){
-            sum += v[i+6].y;
-            counter++;
-        }
-        if(v[i+7].clusters == j){
-            sum += v[i+7].y;
-            counter++;
-        }
-        if(v[i+8].clusters == j){
-            sum += v[i+8].y;
-            counter++;
-        }
-        if(v[i+9].clusters == j){
-            sum += v[i+9].y;
             counter++;
         }
     }
@@ -189,16 +88,10 @@ float mean_y(Ponto v[], int j){
 
 int comparer(float f1, float f2) {
     float precision = 0.0000001;
-    if (((f1 - precision) < f2) &&
-        ((f1 + precision) > f2)) {
-        return 1;
-    } else {
-        return 0;
-    }
+    return ((f1-precision < f2) && (f1+precision) > f2) ? 1 : 0;
 }
 int check(Ponto cluster[],Ponto cluster_updated[]){
 
-    
     for(int i = 0 ; i < K ; i++){
         if((comparer(cluster[i].x,cluster_updated[i].x) != 1)||(comparer(cluster[i].y,cluster_updated[i].y) != 1)){
             return 1;
@@ -216,28 +109,11 @@ int main(){
 
     inicializa(v, cluster);
     colocar(v, cluster);
-    
-    if(changed_location != 0){
-        do{
-            for(int i = 0 ; i < K ; i++){
-                cluster_updated[i].x = mean_x(v,i);
-                cluster_updated[i].y = mean_y(v,i); 
-            }
-            for(int i = 0 ; i < K ; i++){
-                cluster[i].x = cluster_updated[i].x;
-                cluster[i].y = cluster_updated[i].y; 
-            }
-            colocar(v, cluster);
-            counter++;
 
-        } while (changed_location != 1);
-    }
-
-    while (changed_location != 0) {
-        
+    do {
         for(int i = 0 ; i < K ; i++){
             cluster_updated[i].x = mean_x(v,i);
-            cluster_updated[i].y = mean_y(v,i); 
+            cluster_updated[i].y = mean_y(v,i);
         }
         changed_location = check(cluster,cluster_updated);
         if (changed_location == 1) {
@@ -248,7 +124,7 @@ int main(){
             colocar(v, cluster);
             counter++;
         }
-    }
+    }while (changed_location != 0);
 
     printf("\nResult:\n");
     for (int i = 0; i < K; i++) {
