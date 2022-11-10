@@ -1,6 +1,5 @@
 #include<stdio.h>
 #include<stdlib.h>
-#include <math.h>
 
 #define N 10000000
 #define K 4
@@ -12,16 +11,8 @@ typedef struct Ponto {
 
 Ponto *cluster, *ponto;
 
-void alloc() {
-    ponto = (Ponto *) malloc(N * sizeof(Ponto));
-    cluster = (Ponto *) malloc(K * sizeof(Ponto));
-}
-
 int comparar(float f1, float f2) {
-    if (fabs(f1 - f2) <= 0.000000){
-        return 1;
-    }
-    return 0;
+    return f1 - f2 == 0;
 }
 
 void inicializa() {
@@ -39,19 +30,24 @@ void inicializa() {
 
 }
 
-float distance(Ponto p1, Ponto p2) {
-    return (p2.x - p1.x) * (p2.x - p1.x) + (p2.y - p1.y) * (p2.y - p1.y);
-}
-
 void colocar() {
-    for (int i = 0; i < N; i++) {
+    for (int i = 0; i < N/2; i++) {
         float distancia = 1000000000;
         for (int j = 0; j < K; j++) {
-            float d = distance(ponto[i], cluster[j]);
-            if (d < distancia) {
-                distancia = d;
-                ponto[i].cluster = j;
-            }
+            float d = (cluster[j].x - ponto[i].x) * (cluster[j].x - ponto[i].x) +
+                      (cluster[j].y - ponto[i].y) * (cluster[j].y - ponto[i].y);
+            ponto[i].cluster = (d < distancia ? j : ponto[i].cluster);
+            distancia = d < distancia ? d : distancia;
+        }
+    }
+
+    for (int i = N/2; i < N; i++) {
+        float distancia = 1000000000;
+        for (int j = 0; j < K; j++) {
+            float d = (cluster[j].x - ponto[i].x) * (cluster[j].x - ponto[i].x) +
+                      (cluster[j].y - ponto[i].y) * (cluster[j].y - ponto[i].y);
+            ponto[i].cluster = (d < distancia ? j : ponto[i].cluster);
+            distancia = d < distancia ? d : distancia;
         }
     }
 }
@@ -61,20 +57,28 @@ int mean() {
     for (int j = 0; j < K; j++) {
         float sum_x = 0, sum_y = 0;
         int counter = 0;
-        for (int i = 0; i < N; i++) {
+        for (int i = 0; i < N/2; i++) {
             if (ponto[i].cluster == j) {
                 sum_x += ponto[i].x;
                 sum_y += ponto[i].y;
                 counter++;
             }
         }
-        //printf("NEW Cluster %i: (%f, %f), %i\n", j, sum_x / counter, sum_y / counter, counter);
-       // printf("OLD Cluster %i: (%f, %f), %i\n", j, cluster[j].x, cluster[j].y, cluster[j].cluster);
 
-        if (comparar(cluster[j].x, sum_x / counter) == 0 && comparar(cluster[j].y, sum_y / counter) == 0) {
+        for (int i = N/2; i < N; i++) {
+            if (ponto[i].cluster == j) {
+                sum_x += ponto[i].x;
+                sum_y += ponto[i].y;
+                counter++;
+            }
+        }
+
+        float aux_x = sum_x / counter;
+        float aux_y = sum_y / counter;
+        if (comparar(cluster[j].x, aux_x) == 0 || comparar(cluster[j].y, aux_y) == 0) {
             changed_location = 1;
-            cluster[j].x = sum_x / counter;
-            cluster[j].y = sum_y / counter;
+            cluster[j].x = aux_x;
+            cluster[j].y = aux_y;
             cluster[j].cluster = counter;
         }
     }
@@ -83,22 +87,19 @@ int mean() {
 }
 
 int main() {
+    ponto = (Ponto *) malloc(N * sizeof(Ponto));
+    cluster = (Ponto *) malloc(K * sizeof(Ponto));
     int changed_location = 1;
     int counter = 0;
-    alloc();
     inicializa();
     colocar();
 
     while (changed_location == 1) {
         changed_location = mean();
-
-        if (changed_location == 1) {
-            colocar();
-            counter++;
-        }
+        changed_location == 1 ? colocar(): 0;
+        changed_location == 1 ? counter++: 0;
     }
 
-    printf("\nResult:\n");
     for (int i = 0; i < K; i++) {
         printf("Center: (%.3f, %.3f) : Size: %i\n", cluster[i].x, cluster[i].y, cluster[i].cluster);
     }
