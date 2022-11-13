@@ -35,6 +35,8 @@ void inicializa() {
 
 void colocar() {
 
+    #pragma omp parallel for schedule(dynamic,600000)
+
     for (int i = 0; i < N/2; i++) {
         float distancia = 1000000000;
         for (int j = 0; j < K; j++) {
@@ -44,6 +46,7 @@ void colocar() {
             distancia = d < distancia ? d : distancia;
         }
     }
+    #pragma omp parallel for schedule(dynamic,600000)
 
     for (int i = N/2; i < N; i++) {
         float distancia = 1000000000;
@@ -58,11 +61,10 @@ void colocar() {
 
 void mean() {
     int changed_location = 0;
-    #pragma omp parallel num_threads(2)
-    #pragma omp for
     for (int j = 0; j < K; j++) {
         float sum_x = 0, sum_y = 0;
         int counter = 0;
+        #pragma omp parallel for reduction(+:sum_x,sum_y,counter) schedule(dynamic,600000)
         for (int i = 0; i < N/2; i++) {
             if (ponto[i].cluster == j) {
                 sum_x += ponto[i].x;
@@ -70,7 +72,7 @@ void mean() {
                 counter++;
             }
         }
-
+        #pragma omp parallel for reduction(+:sum_x,sum_y,counter) schedule(dynamic,600000)
         for (int i = N/2; i < N; i++) {
             if (ponto[i].cluster == j) {
                 sum_x += ponto[i].x;
@@ -98,6 +100,8 @@ int main() {
     inicializa();
     colocar();
 
+    omp_set_num_threads(2);
+    #pragma omp for
     for(int i = 0 ; i < 20; i++){
         mean();
         colocar();
