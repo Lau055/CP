@@ -4,15 +4,13 @@
 #include<omp.h>
 #include <float.h>
 
-#define N 10000000
-#define K 4
-
 typedef struct Ponto {
     float x, y;
     int cluster;
 } Ponto;
 
 Ponto *cluster, *ponto;
+int K =0, N = 0, T =0;
 
 int comparar(float f1, float f2) {
     return f1 - f2 == 0;
@@ -60,7 +58,6 @@ void colocar() {
 }
 
 void mean() {
-    int changed_location = 0;
     for (int j = 0; j < K; j++) {
         float sum_x = 0, sum_y = 0;
         int counter = 0;
@@ -84,7 +81,6 @@ void mean() {
         float aux_x = sum_x / counter;
         float aux_y = sum_y / counter;
         if ((cluster[j].x- aux_x) != 0 || (cluster[j].y - aux_y) != 0) {
-            changed_location = 1;
             cluster[j].x = aux_x;
             cluster[j].y = aux_y;
             cluster[j].cluster = counter;
@@ -92,15 +88,18 @@ void mean() {
     }
 }
 
-int main() {
+int main(int argc, char * argv[]) {
+    argc < 4 ?  exit(0) : 0;
+    N = atoi(argv[1]);
+    K = atoi(argv[2]);
+    T = atoi(argv[3]);
+
     ponto = (Ponto *) malloc(N * sizeof(Ponto));
     cluster = (Ponto *) malloc(K * sizeof(Ponto));
-    int changed_location = 1;
-    int counter = 0;
     inicializa();
     colocar();
 
-    omp_set_num_threads(2);
+    omp_set_num_threads(T);
     #pragma omp for
     for(int i = 0 ; i < 20; i++){
         mean();
