@@ -1,4 +1,3 @@
-
 #include<stdio.h>
 #include<stdlib.h>
 #include<omp.h>
@@ -33,7 +32,7 @@ void inicializa() {
 
 void colocar() {
 
-    #pragma omp parallel for schedule(dynamic,600000)
+    #pragma omp parallel for
 
     for (int i = 0; i < N/2; i++) {
         float distancia = 1000000000;
@@ -44,7 +43,7 @@ void colocar() {
             distancia = d < distancia ? d : distancia;
         }
     }
-    #pragma omp parallel for schedule(dynamic,600000)
+    #pragma omp parallel for 
 
     for (int i = N/2; i < N; i++) {
         float distancia = 1000000000;
@@ -58,32 +57,30 @@ void colocar() {
 }
 
 void mean() {
-    for (int j = 0; j < K; j++) {
-        float sum_x = 0, sum_y = 0;
-        int counter = 0;
-        #pragma omp parallel for reduction(+:sum_x,sum_y,counter) schedule(dynamic,600000)
-        for (int i = 0; i < N/2; i++) {
-            if (ponto[i].cluster == j) {
-                sum_x += ponto[i].x;
-                sum_y += ponto[i].y;
-                counter++;
-            }
-        }
-        #pragma omp parallel for reduction(+:sum_x,sum_y,counter) schedule(dynamic,600000)
-        for (int i = N/2; i < N; i++) {
-            if (ponto[i].cluster == j) {
-                sum_x += ponto[i].x;
-                sum_y += ponto[i].y;
-                counter++;
-            }
-        }
+    float sum_x[K];
+    float sum_y[K];
+    int counter[K];
 
-        float aux_x = sum_x / counter;
-        float aux_y = sum_y / counter;
-        if ((cluster[j].x- aux_x) != 0 || (cluster[j].y - aux_y) != 0) {
-            cluster[j].x = aux_x;
-            cluster[j].y = aux_y;
-            cluster[j].cluster = counter;
+    for(int i = 0 ;  i < K  ; i++){
+        sum_x[i] = 0.0;
+        sum_y[i] = 0.0;    
+        counter[i] = 0;
+    }
+
+    #pragma omp parallel for reduction(+:sum_x,sum_y,counter) schedule(dynamic,N/3)
+    for(int i = 0 ;  i < N ; i++){
+        sum_x[ponto[i].cluster] += ponto[i].x;
+        sum_y[ponto[i].cluster] += ponto[i].y;
+        counter[ponto[i].cluster] ++;
+    }
+
+    for(int i = 0 ; i < K ; i++){
+        float aux_x = sum_x[i] / counter[i];
+        float aux_y = sum_y[i] / counter[i];
+        if ((cluster[i].x- aux_x) != 0 || (cluster[i].y - aux_y) != 0) {
+            cluster[i].x = aux_x;
+            cluster[i].y = aux_y;
+            cluster[i].cluster = counter[i];
         }
     }
 }
@@ -100,7 +97,6 @@ int main(int argc, char * argv[]) {
     colocar();
 
     omp_set_num_threads(T);
-    #pragma omp for
     for(int i = 0 ; i < 20; i++){
         mean();
         colocar();
