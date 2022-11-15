@@ -17,4 +17,5 @@ clean:
 runseq:
 	./$(BIN)$(EXEC) 10000000 $(CP_CLUSTERS)
 runpar:
-	./$(BIN)$(EXEC) 10000000 $(CP_CLUSTERS) $THREADS
+	./$(BIN)$(EXEC) 10000000 $(CP_CLUSTERS) $(THREADS)
+
