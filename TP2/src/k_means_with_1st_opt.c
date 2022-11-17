@@ -63,7 +63,7 @@ void mean() {
         counter[i] = 0;
     }
 
-    #pragma omp parallel for reduction(+:sum_x,sum_y,counter) schedule(dynamic,N/3)
+    #pragma omp parallel for reduction(+:sum_x,sum_y,counter) schedule(guided,N/3)
     for(int i = 0 ;  i < N ; i++){
         sum_x[ponto[i].cluster] += ponto[i].x;
         sum_y[ponto[i].cluster] += ponto[i].y;
