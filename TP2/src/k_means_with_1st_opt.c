@@ -11,10 +11,6 @@ typedef struct Ponto {
 Ponto *cluster, *ponto;
 int K =0, N = 0, T =0;
 
-int comparar(float f1, float f2) {
-    return f1 - f2 == 0;
-}
-
 void inicializa() {
     srand(10);
     for (int i = 0; i < N; i++) {
@@ -86,10 +82,9 @@ void mean() {
 }
 
 int main(int argc, char * argv[]) {
-    argc < 4 ?  exit(0) : 0;
     N = atoi(argv[1]);
     K = atoi(argv[2]);
-    T = atoi(argv[3]);
+    T = argv[3] ? atoi(argv[3]) : 0;
 
     ponto = (Ponto *) malloc(N * sizeof(Ponto));
     cluster = (Ponto *) malloc(K * sizeof(Ponto));
