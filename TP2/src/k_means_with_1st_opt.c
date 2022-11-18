@@ -1,7 +1,6 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<omp.h>
-#include <float.h>
 
 typedef struct Ponto {
     float x, y;
@@ -97,6 +96,7 @@ int main(int argc, char * argv[]) {
         colocar();
     }
 
+    printf("N = %d, K = %d\n", N, K);
     for (int i = 0; i < K; i++) {
         printf("Center: (%.3f, %.3f) : Size: %i\n", cluster[i].x, cluster[i].y, cluster[i].cluster);
     }
